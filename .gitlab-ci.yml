@@ -1,0 +1,129 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: "/certs"
+  IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+  LATEST_TAG: $CI_REGISTRY_IMAGE:latest
+
+# Build Docker image
+build:
+  stage: build
+  image: docker:24
+  services:
+    - docker:24-dind
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - echo "Building Docker image..."
+    - docker build -t $IMAGE_TAG -t $LATEST_TAG .
+    - echo "Pushing to registry..."
+    - docker push $IMAGE_TAG
+    - docker push $LATEST_TAG
+  only:
+    - main
+    - master
+    - develop
+
+# Deploy to production server
+deploy_production:
+  stage: deploy
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache openssh-client
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan $DEPLOY_HOST >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+  script:
+    - |
+      ssh $DEPLOY_USER@$DEPLOY_HOST << 'EOF'
+        set -e
+
+        echo "Logging into registry..."
+        echo "$CI_REGISTRY_PASSWORD" | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+
+        echo "Pulling latest image..."
+        docker pull $LATEST_TAG
+
+        echo "Creating volume if needed..."
+        docker volume create portfolio-data || true
+
+        echo "Stopping existing container..."
+        docker stop portfolio || true
+        docker rm portfolio || true
+
+        echo "Starting new container..."
+        docker run -d \
+          --name portfolio \
+          --restart unless-stopped \
+          -p 8080:8080 \
+          -e SECRET_KEY="$SECRET_KEY" \
+          -e ADMIN_USERNAME="$ADMIN_USERNAME" \
+          -e ADMIN_PASSWORD_HASH="$ADMIN_PASSWORD_HASH" \
+          -e FLASK_ENV=production \
+          -v portfolio-data:/app/data \
+          $LATEST_TAG
+
+        echo "Waiting for health check..."
+        sleep 10
+
+        echo "Verifying deployment..."
+        docker exec portfolio python -c "import urllib.request; urllib.request.urlopen('http://localhost:8080/api/articles')"
+
+        echo "Cleaning up old images..."
+        docker image prune -f
+
+        echo "✅ Deployment successful!"
+      EOF
+  environment:
+    name: production
+    url: http://$DEPLOY_HOST:8080
+  only:
+    - main
+    - master
+  when: manual  # Require manual approval for production
+
+# Deploy to staging (automatic)
+deploy_staging:
+  stage: deploy
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache openssh-client
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan $STAGING_HOST >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+  script:
+    - |
+      ssh $DEPLOY_USER@$STAGING_HOST << 'EOF'
+        set -e
+        echo "$CI_REGISTRY_PASSWORD" | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+        docker pull $IMAGE_TAG
+        docker volume create portfolio-staging-data || true
+        docker stop portfolio-staging || true
+        docker rm portfolio-staging || true
+        docker run -d \
+          --name portfolio-staging \
+          --restart unless-stopped \
+          -p 8081:8080 \
+          -e SECRET_KEY="$STAGING_SECRET_KEY" \
+          -e ADMIN_USERNAME="$ADMIN_USERNAME" \
+          -e ADMIN_PASSWORD_HASH="$ADMIN_PASSWORD_HASH" \
+          -v portfolio-staging-data:/app/data \
+          $IMAGE_TAG
+        sleep 10
+        docker exec portfolio-staging python -c "import urllib.request; urllib.request.urlopen('http://localhost:8080/api/articles')"
+        echo "✅ Staging deployment successful!"
+      EOF
+  environment:
+    name: staging
+    url: http://$STAGING_HOST:8081
+  only:
+    - develop
