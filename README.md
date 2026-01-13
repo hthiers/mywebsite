@@ -1,37 +1,109 @@
 # Hernán Thiers - Portfolio Website
 
-Professional portfolio website built with Flask, featuring a dynamic portfolio section powered by SQLite database.
+Professional portfolio website built with Flask, featuring a dynamic portfolio section with bilingual support (Spanish/English) and secure admin panel.
 
 ## Features
 
-- Modern, responsive design
-- Dynamic portfolio articles stored in SQLite database
-- RESTful API endpoints for managing portfolio content
-- Clean Python/Flask backend
-- No admin panel - manage content via API or direct database access
+- 🎨 Modern, responsive design with full-width sections
+- 🌐 Bilingual support (Spanish/English) with client-side language switching
+- 📝 Secure admin panel for managing portfolio articles
+- 🔒 Authentication system with password hashing
+- 🗄️ Dynamic portfolio articles stored in SQLite database
+- 🚀 RESTful API endpoints for content management
+- 🐳 Docker support for easy deployment
+- 📱 Mobile-first responsive design
 
 ## Tech Stack
 
-- **Backend**: Python 3.x, Flask 3.0
+- **Backend**: Python 3.11+, Flask 3.0
 - **Database**: SQLite
 - **Frontend**: HTML5, CSS3, JavaScript (Vanilla)
 - **Template Engine**: Jinja2
+- **Deployment**: Docker, Gunicorn
+- **Security**: Werkzeug password hashing, Flask sessions
 
 ## Project Structure
 
 ```
 mywebsite/
-├── app.py                      # Main Flask application
-├── database.py                 # Database operations and models
-├── seed_data.py               # Script to populate initial data
-├── requirements.txt           # Python dependencies
-├── portfolio.db              # SQLite database (generated)
+├── app.py                         # Main Flask application
+├── database.py                    # Database operations and models
+├── seed_data.py                  # Script to populate initial data
+├── requirements.txt              # Python dependencies
+├── Dockerfile                    # Production Docker image
+├── Dockerfile.dev               # Development Docker image
+├── docker-compose.yml           # Docker Compose configuration
+├── .dockerignore                # Docker build exclusions
+├── .env.example                 # Environment variables template
 ├── templates/
-│   └── index.html           # Main page template
-└── static/                  # Static files (if needed)
+│   ├── index.html              # Main website template
+│   ├── admin.html              # Admin panel
+│   └── login.html              # Login page
+├── data/                        # Database directory (created automatically)
+│   └── portfolio.db            # SQLite database
+├── scripts/                     # Deployment helper scripts
+│   ├── deploy-gcp.sh           # Google Cloud Run deployment
+│   ├── run-local.sh            # Local Docker runner
+│   └── build-and-push.sh       # Build and push to registry
+└── static/
+    └── documents/               # Static files (CV, images)
 ```
 
-## Setup Instructions
+## Quick Start (Docker - Recommended)
+
+The easiest way to run the website is using Docker:
+
+### 1. Prerequisites
+- [Docker Desktop](https://www.docker.com/products/docker-desktop) installed
+- Git (to clone the repository)
+
+### 2. Setup Environment
+```bash
+# Clone or navigate to project
+cd mywebsite
+
+# Copy environment template
+cp .env.example .env
+
+# Generate secure credentials
+python generate_password_hash.py
+```
+
+Edit `.env` file with your credentials (see [SECURITY_SETUP.md](SECURITY_SETUP.md) for details).
+
+### 3. Run with Docker
+
+**Production mode:**
+```bash
+./scripts/run-local.sh prod
+# Or: docker-compose up -d
+```
+
+**Development mode (with live reload):**
+```bash
+./scripts/run-local.sh dev
+# Or: docker-compose --profile dev up dev
+```
+
+### 4. Access the Website
+
+- **Website**: http://localhost:8080
+- **Admin Panel**: http://localhost:8080/admin
+- **Login**: http://localhost:8080/login
+
+**Default credentials** (for testing only):
+- Username: `admin`
+- Password: `changeme`
+
+⚠️ **Change these before deploying to production!**
+
+### 5. Seed Database (Optional)
+
+```bash
+docker exec -it mywebsite-web-1 python seed_data.py
+```
+
+## Setup Instructions (Without Docker)
 
 ### 1. Clone or navigate to the project directory
 
@@ -211,34 +283,61 @@ All CSS is embedded in `templates/index.html`. You can:
 - Adjust fonts and sizes
 - Change gradients and animations
 
-## Deployment
+## Production Deployment
 
-### Option 1: Railway
+### Option 1: Google Cloud Run (Recommended)
 
-1. Create a `runtime.txt`:
-   ```
-   python-3.11.0
-   ```
+Serverless, auto-scaling, and cost-effective:
 
-2. Create a `Procfile`:
-   ```
-   web: python app.py
-   ```
+```bash
+# Deploy using helper script
+./scripts/deploy-gcp.sh your-project-id us-central1
 
-3. Push to Railway and deploy
+# Or manually:
+gcloud builds submit --tag gcr.io/your-project-id/portfolio
+gcloud run deploy portfolio --image gcr.io/your-project-id/portfolio \
+  --platform managed --region us-central1 --allow-unauthenticated
+```
 
-### Option 2: Render
+See [DOCKER_DEPLOYMENT.md](DOCKER_DEPLOYMENT.md) for detailed instructions.
 
-1. Create a new Web Service
-2. Connect your repository
-3. Set build command: `pip install -r requirements.txt`
-4. Set start command: `python app.py`
+### Option 2: AWS, DigitalOcean, or any VPS
 
-### Option 3: Traditional Hosting (cPanel, etc.)
+Deploy using Docker on any cloud provider:
 
-1. Upload files via FTP
-2. Configure Python application in cPanel
-3. Point to `app.py` as the entry point
+```bash
+# Build and push to registry
+./scripts/build-and-push.sh your-registry/portfolio:latest
+
+# Deploy on your server
+ssh user@your-server
+docker pull your-registry/portfolio:latest
+docker run -d -p 80:8080 --env-file .env your-registry/portfolio:latest
+```
+
+### Option 3: Traditional Hosting
+
+For platforms without Docker support:
+
+1. Install Python 3.11+ on the server
+2. Upload files via Git or FTP
+3. Install dependencies: `pip install -r requirements.txt`
+4. Configure environment variables
+5. Run with Gunicorn: `gunicorn -w 2 -b 0.0.0.0:8080 app:app`
+
+### Environment Variables for Production
+
+Make sure to set these in your deployment platform:
+
+```env
+SECRET_KEY=<your-generated-secret-key>
+ADMIN_USERNAME=<your-admin-username>
+ADMIN_PASSWORD_HASH=<your-generated-password-hash>
+```
+
+**Never use the default credentials in production!**
+
+See [SECURITY_SETUP.md](SECURITY_SETUP.md) for security best practices.
 
 ## Development
 

@@ -1,8 +1,12 @@
 import sqlite3
 import json
+import os
 from typing import List, Optional, Dict
 
-DATABASE = 'portfolio.db'
+# Use data directory for database (better for Docker volumes)
+DATA_DIR = os.getenv('DATA_DIR', 'data')
+os.makedirs(DATA_DIR, exist_ok=True)
+DATABASE = os.path.join(DATA_DIR, 'portfolio.db')
 
 def get_db_connection():
     """Create a database connection."""

@@ -1,0 +1,21 @@
+# Development Dockerfile with live reload
+FROM python:3.11-slim
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    FLASK_ENV=development
+
+WORKDIR /app
+
+# Install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application
+COPY . .
+
+# Expose development port
+EXPOSE 5001
+
+# Run Flask development server
+CMD ["python", "app.py"]

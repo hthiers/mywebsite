@@ -1,0 +1,76 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.pyc
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+
+# macOS
+.DS_Store
+
+# Environment variables (use docker-compose env vars instead)
+.env
+.env.local
+.env.example
+
+# Documentation
+README.md
+SECURITY_SETUP.md
+DOCKER_DEPLOYMENT.md
+*.md
+
+# Database (will be mounted as volume)
+*.db
+*.sqlite
+*.sqlite3
+portfolio.db
+
+# Logs
+*.log
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Temporary files
+*.tmp
+tmp/
+temp/
+
+# Scripts that aren't needed in production
+seed_data.py
+generate_password_hash.py
+migrate_db.py
+add_image_url.py
+update_translations.py
+portfolio-prototype.html

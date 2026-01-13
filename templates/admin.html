@@ -35,14 +35,17 @@
             color: var(--white);
             padding: 1.5rem 2rem;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .admin-header h1 {
+        .admin-header-content h1 {
             font-family: 'Sora', sans-serif;
             font-size: 1.8rem;
         }
 
-        .admin-header p {
+        .admin-header-content p {
             opacity: 0.8;
             margin-top: 0.5rem;
         }
@@ -50,6 +53,26 @@
         .admin-header a {
             color: #60a5fa;
             text-decoration: none;
+        }
+
+        .logout-btn {
+            padding: 0.6rem 1.2rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
         }
 
         .container {
@@ -317,8 +340,13 @@
 </head>
 <body>
     <div class="admin-header">
-        <h1>📝 Portfolio Admin</h1>
-        <p>Manage your portfolio articles | <a href="/">← Back to Website</a></p>
+        <div class="admin-header-content">
+            <h1>📝 Portfolio Admin</h1>
+            <p>Manage your portfolio articles | <a href="/">← Back to Website</a></p>
+        </div>
+        <a href="/logout" class="logout-btn">
+            <span>🚪</span> Logout
+        </a>
     </div>
 
     <div class="container">
