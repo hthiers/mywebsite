@@ -1,9 +1,11 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash
+from flask_mail import Mail, Message
 from werkzeug.security import check_password_hash, generate_password_hash
 from functools import wraps
 from database import (
-    init_db, get_all_articles, get_article_by_id,
-    create_article, update_article, delete_article
+    init_db, get_all_articles, get_articles_paginated, get_article_by_id,
+    create_article, update_article, delete_article,
+    create_contact_message
 )
 import os
 from dotenv import load_dotenv
@@ -12,6 +14,18 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
+
+# Flask-Mail configuration
+app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
+app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
+app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'True') == 'True'
+app.config['MAIL_USE_SSL'] = os.getenv('MAIL_USE_SSL', 'False') == 'True'
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER', os.getenv('MAIL_USERNAME'))
+app.config['MAIL_RECIPIENT'] = os.getenv('MAIL_RECIPIENT', 'hernanthiers@gmail.com')
+
+mail = Mail(app)
 
 # Admin credentials (in production, use environment variables)
 ADMIN_USERNAME = os.getenv('ADMIN_USERNAME', 'admin')
@@ -34,9 +48,9 @@ def login_required(f):
 
 @app.route('/')
 def index():
-    """Render the main page with all portfolio articles."""
-    articles = get_all_articles()
-    return render_template('index.html', articles=articles)
+    """Render the main page with portfolio articles (first 6)."""
+    data = get_articles_paginated(limit=6, offset=0)
+    return render_template('index.html', articles=data['articles'], has_more=data['has_more'], total=data['total'])
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -73,9 +87,24 @@ def admin():
 
 @app.route('/api/articles', methods=['GET'])
 def api_get_articles():
-    """Get all portfolio articles as JSON."""
-    articles = get_all_articles()
-    return jsonify(articles)
+    """Get portfolio articles as JSON with optional pagination.
+
+    Query parameters:
+    - limit: Number of articles to return (default: all if not specified)
+    - offset: Number of articles to skip (default: 0)
+
+    If limit is specified, returns paginated response with has_more flag.
+    If limit is not specified, returns all articles (backward compatible).
+    """
+    limit = request.args.get('limit', type=int)
+    offset = request.args.get('offset', default=0, type=int)
+
+    if limit is not None:
+        data = get_articles_paginated(limit=limit, offset=offset)
+        return jsonify(data)
+    else:
+        articles = get_all_articles()
+        return jsonify(articles)
 
 @app.route('/api/articles/<int:article_id>', methods=['GET'])
 def api_get_article(article_id):
@@ -177,6 +206,77 @@ def api_delete_article(article_id):
         'message': 'Article deleted successfully',
         'id': article_id
     })
+
+# Contact Form Endpoint
+
+@app.route('/api/contact', methods=['POST'])
+def api_contact():
+    """Handle contact form submissions.
+
+    Expected JSON body:
+    {
+        "name": "John Doe",
+        "email": "john@example.com",
+        "message": "Hello, I'd like to discuss..."
+    }
+    """
+    data = request.get_json()
+
+    if not data or 'name' not in data or 'email' not in data or 'message' not in data:
+        return jsonify({'error': 'Missing required fields: name, email, message'}), 400
+
+    name = data['name'].strip()
+    email = data['email'].strip()
+    message_text = data['message'].strip()
+
+    # Basic validation
+    if not name or not email or not message_text:
+        return jsonify({'error': 'All fields are required'}), 400
+
+    if len(message_text) < 10:
+        return jsonify({'error': 'Message must be at least 10 characters'}), 400
+
+    try:
+        # Save to database
+        message_id = create_contact_message(name, email, message_text)
+
+        # Send email notification
+        try:
+            msg = Message(
+                subject=f'New Contact Form Submission from {name}',
+                recipients=[app.config['MAIL_RECIPIENT']],
+                body=f'''
+You have received a new message from your portfolio contact form:
+
+Name: {name}
+Email: {email}
+
+Message:
+{message_text}
+
+---
+This message was sent from your portfolio website contact form.
+Reply to: {email}
+                ''',
+                reply_to=email
+            )
+            mail.send(msg)
+            email_sent = True
+        except Exception as e:
+            print(f"Error sending email: {str(e)}")
+            email_sent = False
+            # Continue even if email fails - message is saved in database
+
+        return jsonify({
+            'success': True,
+            'message': 'Thank you for your message! I\'ll get back to you soon.',
+            'id': message_id,
+            'email_sent': email_sent
+        }), 200
+
+    except Exception as e:
+        print(f"Error processing contact form: {str(e)}")
+        return jsonify({'error': 'An error occurred. Please try again later.'}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)

@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hernán Thiers - AI Developer & Technical Consultant</title>
+    <title>Hernán Thiers - Consultor TI</title>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         * {
             margin: 0;
@@ -138,6 +139,37 @@
             color: var(--white);
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Font Awesome Icon Styles */
+        .fa-solid, .fa-brands {
+            margin-right: 0.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .btn-primary .fa-solid,
+        .btn-secondary .fa-solid {
+            transition: transform 0.3s ease;
+        }
+
+        .btn-primary:hover .fa-solid {
+            transform: translateX(3px);
+        }
+
+        .btn-secondary:hover .fa-solid {
+            transform: scale(1.1);
+        }
+
+        .credential-icon i {
+            font-size: 1.5rem;
+        }
+
+        .contact-icon i {
+            font-size: 1.5rem;
+        }
+
+        .service-icon i {
+            font-size: 1.8rem;
         }
 
         /* Hero Section */
@@ -443,6 +475,48 @@
             gap: 2.5rem;
         }
 
+        /* Load More Button */
+        .load-more-container {
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        .btn-load-more {
+            padding: 1rem 2.5rem;
+            background: var(--white);
+            color: var(--primary-dark);
+            border: 2px solid var(--primary-dark);
+            font-weight: 600;
+            font-size: 1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .btn-load-more:hover {
+            background: var(--primary-dark);
+            color: var(--white);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(30, 58, 95, 0.3);
+        }
+
+        .btn-load-more:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-load-more i {
+            transition: transform 0.3s ease;
+        }
+
+        .btn-load-more:hover i {
+            transform: translateY(3px);
+        }
+
         .portfolio-card {
             background: var(--white);
             border-radius: 16px;
@@ -656,6 +730,36 @@
             box-shadow: 0 5px 20px rgba(59, 130, 246, 0.3);
         }
 
+        .btn-submit:disabled {
+            background: var(--text-light);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .form-alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: none;
+            animation: fadeInUp 0.3s ease;
+        }
+
+        .form-alert.show {
+            display: block;
+        }
+
+        .form-alert.success {
+            background: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid #10b981;
+        }
+
+        .form-alert.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+        }
+
         /* Footer */
         footer {
             background: var(--primary-dark);
@@ -735,7 +839,7 @@
                     <span id="currentLang">ES</span>
                 </button>
                 <a href="https://github.com/hthiers" target="_blank" class="btn-icon">
-                    <span>⚡</span> GitHub
+                    <i class="fa-brands fa-github"></i> GitHub
                 </a>
             </div>
         </nav>
@@ -756,21 +860,21 @@
 
                 <div class="credentials">
                     <div class="credential-item">
-                        <div class="credential-icon">🎓</div>
+                        <div class="credential-icon"><i class="fa-solid fa-graduation-cap"></i></div>
                         <div class="credential-text">
                             <span class="credential-label" data-i18n="hero.credentials.degree.label">Título Profesional</span>
                             <span class="credential-value" data-i18n="hero.credentials.degree.value">Ingeniería en Informática</span>
                         </div>
                     </div>
                     <div class="credential-item">
-                        <div class="credential-icon">📜</div>
+                        <div class="credential-icon"><i class="fa-solid fa-certificate"></i></div>
                         <div class="credential-text">
                             <span class="credential-label" data-i18n="hero.credentials.diploma.label">Diplomado</span>
                             <span class="credential-value" data-i18n="hero.credentials.diploma.value">[Tu Diplomado]</span>
                         </div>
                     </div>
                     <div class="credential-item">
-                        <div class="credential-icon">⚡</div>
+                        <div class="credential-icon"><i class="fa-solid fa-bolt"></i></div>
                         <div class="credential-text">
                             <span class="credential-label" data-i18n="hero.credentials.specialization.label">Especialización</span>
                             <span class="credential-value" data-i18n="hero.credentials.specialization.value">AI & Automation</span>
@@ -780,10 +884,10 @@
 
                 <div class="hero-cta">
                     <a href="https://storage.googleapis.com/hthiers-images/docs/CV%20Herna%CC%81n%20Thiers%20G.%202025.pdf" class="btn-primary" target="_blank" rel="noopener noreferrer">
-                        <span>📄</span> <span data-i18n="hero.cta.download">Descargar CV</span>
+                        <i class="fa-solid fa-file-arrow-down"></i> <span data-i18n="hero.cta.download">Descargar CV</span>
                     </a>
                     <a href="#contacto" class="btn-secondary">
-                        <span>💬</span> <span data-i18n="hero.cta.talk">Hablemos</span>
+                        <i class="fa-solid fa-comments"></i> <span data-i18n="hero.cta.talk">Hablemos</span>
                     </a>
                 </div>
             </div>
@@ -807,7 +911,7 @@
 
         <div class="services-grid">
             <div class="service-card">
-                <div class="service-icon">🤖</div>
+                <div class="service-icon"><i class="fa-solid fa-robot"></i></div>
                 <h3 data-i18n="services.card1.title">Desarrollo con IA</h3>
                 <p data-i18n="services.card1.description">
                     Integración de modelos de lenguaje (LLMs), desarrollo de agentes inteligentes y
@@ -816,7 +920,7 @@
             </div>
 
             <div class="service-card">
-                <div class="service-icon">🧠</div>
+                <div class="service-icon"><i class="fa-solid fa-brain"></i></div>
                 <h3 data-i18n="services.card2.title">Automatización Inteligente</h3>
                 <p data-i18n="services.card2.description">
                     Diseño e implementación de flujos automatizados con IA. Procesamiento de lenguaje natural,
@@ -825,7 +929,7 @@
             </div>
 
             <div class="service-card">
-                <div class="service-icon">🚀</div>
+                <div class="service-icon"><i class="fa-solid fa-rocket"></i></div>
                 <h3 data-i18n="services.card3.title">Migración y Modernización</h3>
                 <p data-i18n="services.card3.description">
                     Actualización de sistemas legacy, migración entre servidores y modernización
@@ -834,7 +938,7 @@
             </div>
 
             <div class="service-card">
-                <div class="service-icon">🔍</div>
+                <div class="service-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
                 <h3 data-i18n="services.card4.title">Corrección de Errores</h3>
                 <p data-i18n="services.card4.description">
                     Debugging avanzado y resolución de problemas críticos. Análisis profundo
@@ -843,7 +947,7 @@
             </div>
 
             <div class="service-card">
-                <div class="service-icon">📊</div>
+                <div class="service-icon"><i class="fa-solid fa-chart-line"></i></div>
                 <h3 data-i18n="services.card5.title">Consultoría en IA</h3>
                 <p data-i18n="services.card5.description">
                     Asesoría estratégica para integración de IA en procesos de negocio. Evaluación de casos
@@ -852,7 +956,7 @@
             </div>
 
             <div class="service-card">
-                <div class="service-icon">⚙️</div>
+                <div class="service-icon"><i class="fa-solid fa-gear"></i></div>
                 <h3 data-i18n="services.card6.title">Gestión de Servidores</h3>
                 <p data-i18n="services.card6.description">
                     Configuración, optimización y mantenimiento de servidores. Implementación
@@ -873,7 +977,7 @@
             </p>
         </div>
 
-        <div class="portfolio-grid">
+        <div class="portfolio-grid" id="portfolioGrid">
             {% for article in articles %}
             <div class="portfolio-card">
                 {% if article.image_url %}
@@ -900,6 +1004,15 @@
             </div>
             {% endfor %}
         </div>
+
+        {% if has_more %}
+        <div class="load-more-container">
+            <button id="loadMoreBtn" class="btn-load-more" data-offset="6">
+                <span data-i18n="portfolio.loadMore">Ver más proyectos</span>
+                <i class="fa-solid fa-chevron-down"></i>
+            </button>
+        </div>
+        {% endif %}
     </section>
 
     <!-- Contacto -->
@@ -922,7 +1035,7 @@
 
                 <div class="contact-methods">
                     <a href="https://wa.me/56993779421" class="contact-method" target="_blank">
-                        <div class="contact-icon whatsapp-icon">📱</div>
+                        <div class="contact-icon whatsapp-icon"><i class="fa-brands fa-whatsapp"></i></div>
                         <div>
                             <div style="font-weight: 600;">WhatsApp</div>
                             <div style="color: var(--text-light); font-size: 0.9rem;" data-i18n="contact.methods.whatsapp">Respuesta inmediata</div>
@@ -930,7 +1043,7 @@
                     </a>
 
                     <a href="mailto:hernanthiers@gmail.com" class="contact-method">
-                        <div class="contact-icon">✉️</div>
+                        <div class="contact-icon"><i class="fa-solid fa-envelope"></i></div>
                         <div>
                             <div style="font-weight: 600;">Email</div>
                             <div style="color: var(--text-light); font-size: 0.9rem;">hernanthiers@gmail.com</div>
@@ -938,7 +1051,7 @@
                     </a>
 
                     <a href="https://github.com/hthiers" class="contact-method" target="_blank">
-                        <div class="contact-icon">⚡</div>
+                        <div class="contact-icon"><i class="fa-brands fa-github"></i></div>
                         <div>
                             <div style="font-weight: 600;">GitHub</div>
                             <div style="color: var(--text-light); font-size: 0.9rem;" data-i18n="contact.methods.github">Ver código y proyectos</div>
@@ -948,7 +1061,8 @@
             </div>
 
             <div class="contact-form">
-                <form>
+                <div id="contact-alert" class="form-alert"></div>
+                <form id="contactForm">
                     <div class="form-group">
                         <label for="nombre" data-i18n="contact.form.name">Nombre</label>
                         <input type="text" id="nombre" name="nombre" required>
@@ -961,10 +1075,12 @@
 
                     <div class="form-group">
                         <label for="mensaje" data-i18n="contact.form.message">Mensaje</label>
-                        <textarea id="mensaje" name="mensaje" required></textarea>
+                        <textarea id="mensaje" name="mensaje" rows="5" required></textarea>
                     </div>
 
-                    <button type="submit" class="btn-submit" data-i18n="contact.form.submit">Enviar Mensaje</button>
+                    <button type="submit" class="btn-submit" id="submitBtn">
+                        <span data-i18n="contact.form.submit">Enviar Mensaje</span>
+                    </button>
                 </form>
             </div>
         </div>
@@ -1064,7 +1180,8 @@
                 portfolio: {
                     tag: 'Mis Proyectos',
                     title: 'Trabajos Destacados',
-                    subtitle: 'Ya no tiene sentido vender un software genérico. Los proyectos que realizo son 100% a medida, adaptados a las necesidades específicas de cada cliente, aprovechando al máximo las capacidades de la IA.'
+                    subtitle: 'Ya no tiene sentido vender un software genérico. Los proyectos que realizo son 100% a medida, adaptados a las necesidades específicas de cada cliente, aprovechando al máximo las capacidades de la IA.',
+                    loadMore: 'Ver más proyectos'
                 },
                 contact: {
                     tag: 'Contacto',
@@ -1150,7 +1267,8 @@
                 portfolio: {
                     tag: 'My Projects',
                     title: 'Featured Work',
-                    subtitle: 'Don\'t just buy a generic software or cloud service. Let\'s evaluate, land, and build in record time at a very low cost.'
+                    subtitle: 'Don\'t just buy a generic software or cloud service. Let\'s evaluate, land, and build in record time at a very low cost.',
+                    loadMore: 'Load more projects'
                 },
                 contact: {
                     tag: 'Contact',
@@ -1238,6 +1356,151 @@
 
         // Apply translations on page load
         applyTranslations(currentLang);
+
+        // Contact Form Handling
+        const contactForm = document.getElementById('contactForm');
+        const contactAlert = document.getElementById('contact-alert');
+        const submitBtn = document.getElementById('submitBtn');
+
+        contactForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Get form values
+            const name = document.getElementById('nombre').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const message = document.getElementById('mensaje').value.trim();
+
+            // Validate
+            if (!name || !email || !message) {
+                showFormAlert('Please fill in all fields', 'error');
+                return;
+            }
+
+            if (message.length < 10) {
+                showFormAlert('Message must be at least 10 characters', 'error');
+                return;
+            }
+
+            // Disable button and show loading
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span>Sending...</span>';
+
+            try {
+                const response = await fetch('/api/contact', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, email, message })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showFormAlert(currentLang === 'es'
+                        ? '¡Gracias por tu mensaje! Te responderé pronto.'
+                        : 'Thank you for your message! I\'ll get back to you soon.',
+                        'success'
+                    );
+                    contactForm.reset();
+                } else {
+                    showFormAlert(data.error || 'An error occurred. Please try again.', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showFormAlert('An error occurred. Please try again.', 'error');
+            } finally {
+                // Re-enable button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span data-i18n="contact.form.submit">Enviar Mensaje</span>';
+                applyTranslations(currentLang); // Reapply translations to button
+            }
+        });
+
+        function showFormAlert(message, type) {
+            contactAlert.textContent = message;
+            contactAlert.className = `form-alert ${type} show`;
+
+            // Scroll to alert
+            contactAlert.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                contactAlert.classList.remove('show');
+            }, 5000);
+        }
+
+        // Load More Portfolio Articles
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        const portfolioGrid = document.getElementById('portfolioGrid');
+
+        if (loadMoreBtn) {
+            loadMoreBtn.addEventListener('click', async () => {
+                const offset = parseInt(loadMoreBtn.dataset.offset);
+                const limit = 6;
+
+                // Disable button and show loading
+                loadMoreBtn.disabled = true;
+                const originalText = loadMoreBtn.querySelector('span').textContent;
+                loadMoreBtn.querySelector('span').textContent = currentLang === 'es' ? 'Cargando...' : 'Loading...';
+
+                try {
+                    const response = await fetch(`/api/articles?limit=${limit}&offset=${offset}`);
+                    const data = await response.json();
+
+                    if (data.articles && data.articles.length > 0) {
+                        // Append new articles to the grid
+                        data.articles.forEach(article => {
+                            const card = createPortfolioCard(article);
+                            portfolioGrid.appendChild(card);
+                        });
+
+                        // Update offset for next load
+                        loadMoreBtn.dataset.offset = offset + limit;
+
+                        // Hide button if no more articles
+                        if (!data.has_more) {
+                            loadMoreBtn.parentElement.style.display = 'none';
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error loading more articles:', error);
+                } finally {
+                    // Re-enable button
+                    loadMoreBtn.disabled = false;
+                    loadMoreBtn.querySelector('span').textContent = originalText;
+                }
+            });
+        }
+
+        function createPortfolioCard(article) {
+            const card = document.createElement('div');
+            card.className = 'portfolio-card';
+            card.style.animation = 'fadeInUp 0.5s ease';
+
+            const title = currentLang === 'en' ? article.title_en : article.title;
+            const description = currentLang === 'en' ? article.description_en : article.description;
+
+            let imageHtml;
+            if (article.image_url) {
+                imageHtml = `<div class="portfolio-image" style="background: url('${article.image_url}') center/cover no-repeat;"></div>`;
+            } else {
+                imageHtml = `<div class="portfolio-image" style="background: ${article.image_gradient};">${article.image_letter}</div>`;
+            }
+
+            const techBadges = article.tech_stack.map(tech => `<span class="tech-badge">${tech}</span>`).join('');
+
+            card.innerHTML = `
+                ${imageHtml}
+                <div class="portfolio-content">
+                    <h3 class="portfolio-title" data-es="${article.title}" data-en="${article.title_en}">${title}</h3>
+                    <p class="portfolio-description" data-es="${article.description}" data-en="${article.description_en}">${description}</p>
+                    <div class="tech-stack">${techBadges}</div>
+                </div>
+            `;
+
+            return card;
+        }
     </script>
 </body>
 </html>

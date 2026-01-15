@@ -35,6 +35,17 @@ def init_db():
         )
     ''')
 
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS contact_messages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            email TEXT NOT NULL,
+            message TEXT NOT NULL,
+            read_status BOOLEAN DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+
     conn.commit()
     conn.close()
     print("Database initialized successfully!")
@@ -62,6 +73,43 @@ def get_all_articles() -> List[Dict]:
         })
 
     return result
+
+
+def get_articles_paginated(limit: int = 6, offset: int = 0) -> Dict:
+    """Get portfolio articles with pagination."""
+    conn = get_db_connection()
+
+    # Get total count
+    total = conn.execute('SELECT COUNT(*) FROM portfolio_articles').fetchone()[0]
+
+    # Get paginated articles
+    articles = conn.execute(
+        'SELECT * FROM portfolio_articles ORDER BY created_at DESC LIMIT ? OFFSET ?',
+        (limit, offset)
+    ).fetchall()
+    conn.close()
+
+    result = []
+    for article in articles:
+        result.append({
+            'id': article['id'],
+            'title': article['title'],
+            'description': article['description'],
+            'title_en': article['title_en'] if article['title_en'] else article['title'],
+            'description_en': article['description_en'] if article['description_en'] else article['description'],
+            'image_url': article['image_url'],
+            'image_gradient': article['image_gradient'],
+            'image_letter': article['image_letter'],
+            'tech_stack': json.loads(article['tech_stack']) if article['tech_stack'] else [],
+            'created_at': article['created_at'],
+            'updated_at': article['updated_at']
+        })
+
+    return {
+        'articles': result,
+        'total': total,
+        'has_more': offset + limit < total
+    }
 
 def get_article_by_id(article_id: int) -> Optional[Dict]:
     """Get a single portfolio article by ID."""
@@ -168,6 +216,74 @@ def delete_article(article_id: int) -> bool:
     cursor = conn.cursor()
 
     cursor.execute('DELETE FROM portfolio_articles WHERE id = ?', (article_id,))
+
+    conn.commit()
+    affected = cursor.rowcount
+    conn.close()
+
+    return affected > 0
+
+# Contact Messages Functions
+
+def create_contact_message(name: str, email: str, message: str) -> int:
+    """Create a new contact message."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('''
+        INSERT INTO contact_messages (name, email, message)
+        VALUES (?, ?, ?)
+    ''', (name, email, message))
+
+    message_id = cursor.lastrowid
+    conn.commit()
+    conn.close()
+
+    return message_id
+
+def get_all_contact_messages() -> List[Dict]:
+    """Get all contact messages."""
+    conn = get_db_connection()
+    messages = conn.execute('SELECT * FROM contact_messages ORDER BY created_at DESC').fetchall()
+    conn.close()
+
+    result = []
+    for msg in messages:
+        result.append({
+            'id': msg['id'],
+            'name': msg['name'],
+            'email': msg['email'],
+            'message': msg['message'],
+            'read_status': msg['read_status'],
+            'created_at': msg['created_at']
+        })
+
+    return result
+
+def get_contact_message_by_id(message_id: int) -> Optional[Dict]:
+    """Get a single contact message by ID."""
+    conn = get_db_connection()
+    msg = conn.execute('SELECT * FROM contact_messages WHERE id = ?', (message_id,)).fetchone()
+    conn.close()
+
+    if msg is None:
+        return None
+
+    return {
+        'id': msg['id'],
+        'name': msg['name'],
+        'email': msg['email'],
+        'message': msg['message'],
+        'read_status': msg['read_status'],
+        'created_at': msg['created_at']
+    }
+
+def mark_message_as_read(message_id: int) -> bool:
+    """Mark a contact message as read."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('UPDATE contact_messages SET read_status = 1 WHERE id = ?', (message_id,))
 
     conn.commit()
     affected = cursor.rowcount
