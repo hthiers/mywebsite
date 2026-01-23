@@ -1007,7 +1007,7 @@
                         data-en="{{ article.title_en }}">{{ article.title }}</h3>
                     <p class="portfolio-description"
                         data-es="{{ article.description }}"
-                        data-en="{{ article.description_en }}">{{ article.description }}</p>
+                        data-en="{{ article.description_en }}">{{ article.description|truncate_words(50) }}</p>
                     <div class="tech-stack">
                         {% for tech in article.tech_stack %}
                         <span class="tech-badge">{{ tech }}</span>
@@ -1105,6 +1105,14 @@
     </footer>
 
     <script>
+        // Truncate text to a maximum number of words
+        function truncateWords(text, maxWords) {
+            if (!text) return '';
+            const words = text.split(/\s+/);
+            if (words.length <= maxWords) return text;
+            return words.slice(0, maxWords).join(' ') + '...';
+        }
+
         // Smooth scrolling
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
@@ -1349,7 +1357,7 @@
             document.querySelectorAll('.portfolio-description').forEach(element => {
                 const text = element.getAttribute(`data-${lang}`);
                 if (text) {
-                    element.textContent = text;
+                    element.textContent = truncateWords(text, 50);
                 }
             });
 
@@ -1492,7 +1500,7 @@
             card.style.animation = 'fadeInUp 0.5s ease';
 
             const title = currentLang === 'en' ? article.title_en : article.title;
-            const description = currentLang === 'en' ? article.description_en : article.description;
+            const description = truncateWords(currentLang === 'en' ? article.description_en : article.description, 50);
 
             let imageHtml;
             if (article.image_url) {

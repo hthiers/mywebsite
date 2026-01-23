@@ -15,6 +15,17 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
 
+# Custom Jinja2 filter to truncate text to a max number of words
+def truncate_words(text, max_words=50):
+    if not text:
+        return ''
+    words = text.split()
+    if len(words) <= max_words:
+        return text
+    return ' '.join(words[:max_words]) + '...'
+
+app.jinja_env.filters['truncate_words'] = truncate_words
+
 # Flask-Mail configuration
 app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
 app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
